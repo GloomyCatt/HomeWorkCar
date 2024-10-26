@@ -7,19 +7,30 @@ namespace Car
         [SerializeField]
         private GameObject tailLights;
         [SerializeField]
-        private Material material;
+        private GameObject frontLights;
+        [SerializeField]
+        private Material tailLightsMaterial;
+        [SerializeField]
+        private Material frontLightsMaterial;
 
-        public void TailLights(bool on)
+        private void Update()
         {
-            tailLights.SetActive(on);
-            if (on)
+            TurnOnLights(Input.GetAxis("Vertical") >= 0, frontLights, frontLightsMaterial);
+            TurnOnLights(Input.GetAxis("Vertical") < 0, tailLights, tailLightsMaterial);
+        }
+
+        public void TurnOnLights(bool state, GameObject lightsObject, Material lightsMaterial)
+        {
+            lightsObject.SetActive(state);
+            if (state)
             {
-                material.EnableKeyword("_EMISSION");
+                lightsMaterial.EnableKeyword("_EMISSION");
             }
             else
             {
-                material.DisableKeyword("_EMISSION");
+                lightsMaterial.DisableKeyword("_EMISSION");
             }
+
         }
     }
 }

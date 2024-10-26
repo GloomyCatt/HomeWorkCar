@@ -1,30 +1,33 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Car
 {
+    public enum TypeOfActuators
+    {
+        FWD,
+        RWD,
+        AWD
+    }
+
     public class SimpleCar : MonoBehaviour
     {
-        [Header("Steer")]
+        [Header("CarParams")]
         [SerializeField]
-        private float maxSteer = 45;
+        private float maxSteer = 45f;
+        [SerializeField] private float power = 10f;
+        [Header("Wheels")]
+        [SerializeField] private TypeOfActuators actuators = TypeOfActuators.FWD;
         [SerializeField]
         private Wheel[] steerWheels = Array.Empty<Wheel>();
-        [Header("Power")]
-        [SerializeField]
-        private float power = 10;
         [SerializeField]
         private Wheel[] powerWheels = Array.Empty<Wheel>();
-        [Space]
-        [SerializeField]
-        private Lights lights;
-
-
+   
         private void Update()
         {
             Turning();
             Powering();
-            Lights();
         }
 
         private void Turning()
@@ -33,14 +36,14 @@ namespace Car
             {
                 wheelCollider.Steer(
                     Input.GetAxis("Horizontal")
-                    * maxSteer
+                    * maxSteer 
                 );
             }
         }
 
         private void Powering()
         {
-            foreach (var powerWheel in powerWheels)
+            foreach (var powerWheel in ReturnPoweringWheels())
             {
                 powerWheel.Torque(
                     Input.GetAxis("Vertical")
@@ -50,9 +53,18 @@ namespace Car
             }
         }
 
-        private void Lights()
+        private Wheel[] ReturnPoweringWheels()
         {
-            lights.TailLights(Input.GetAxis("Vertical") < 0);
+            switch (actuators)
+            {
+                case TypeOfActuators.FWD:
+                    return steerWheels;                   
+                case TypeOfActuators.RWD: 
+                    return powerWheels;
+                case TypeOfActuators.AWD:
+                    return powerWheels.Concat(steerWheels).ToArray();
+            }
+            return null;
         }
     }
 }
